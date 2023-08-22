@@ -33,7 +33,7 @@ function App() {
 
 
 
-  const pickWordAndpickedCategory = () => {
+  const pickWordAndpickedCategory = useCallback(() => {
     const categories = Object.keys(words)
 
     const category = categories[Math.floor(Math.random() * Object.keys(categories).length)]
@@ -42,41 +42,82 @@ function App() {
 
     return [word, category]
 
-  }
-
+  }, [words])
 
   // Game stages
 
-  const startGame = () => {
+  const startGame = useCallback(() => {
+
+    clearLetterStates()
 
     const [word, category] = pickWordAndpickedCategory()
     let wordLettter = word.split("")
     wordLettter = wordLettter.map((letter) => letter.toLowerCase())
-    console.log(word, category, wordLettter)
 
     setPickedWord(word)
     setPickedCategory(category)
     setLetters(wordLettter)
 
     setGameStage(stages[1].name)
-  }
+  }, [pickWordAndpickedCategory])
 
   const verifyLetter = (letter) => {
-    console.log(letter)
+    const normalizedLetter = letter.toLowerCase()
 
+    if (guessedLetters.includes(normalizedLetter) || wrongLetters.includes(normalizedLetter)) {
+      return
+    }
+    if (letter.includes(normalizedLetter)) {
+      setGuessedLetters((actual) => [
+        ...actual, normalizedLetter
+      ])
+    } else {
+      setWrongLetters((actual) => [
+        ...actual, normalizedLetter
+      ])
 
-    //setGameStage(stages[2].name)
+      setGuesses((actualGesses) => actualGesses - 1)
+    }
   }
+
+  function clearLetterStates() {
+    setGuessedLetters([])
+    setWrongLetters([])
+  }
+
+  useEffect(() => {
+    if (guesses <= 0) {
+      clearLetterStates()
+      setGameStage(stages[2].name)
+    }
+  }, [guesses])
+
+  useEffect(() => {
+    const uniqueLetters = [...new Set(letters)]
+
+    if (guessedLetters.length === uniqueLetters.length) {
+      setScore((actual) => actual += 100)
+
+      startGame()
+    }
+
+  }, [guessedLetters, letters, startGame])
+
 
   const retry = () => {
+    setScore(0)
+    setGuesses(guessesQtd)
     setGameStage(stages[0].name)
   }
+
+  const guessesQtd = 3
 
   // Game stages
 
   return (
     <div className="App">
-      {gameStage === 'start' && <StartScreen start={startGame} />}
+      {gameStage === 'start' &&
+        <StartScreen start={startGame} />}
       {gameStage === 'game' &&
         <Game
           verifyLetter={verifyLetter}
@@ -87,7 +128,10 @@ function App() {
           wrongLetters={wrongLetters}
           guesses={guesses}
           score={score} />}
-      {gameStage === 'end' && <GameOver retry={retry} />}
+      {gameStage === 'end' &&
+        <GameOver
+          retry={retry}
+          score={score} />}
     </div>
   );
 }

@@ -1,22 +1,22 @@
-import React, {useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 
 import './Game.css'
 
 const Game = ({ verifyLetter, pickedWord, pickedCategory, letters, guessedLetters, wrongLetters, guesses, score }) => {
 
-    const letterInputRef = useRef(null)
+  const letterInputRef = useRef(null)
 
-    const [ letter, setLetter] = useState("")
+  const [letter, setLetter] = useState("")
 
-    const handleSubmit = (e) => {
-      e.preventDefault()
+  const handleSubmit = (e) => {
+    e.preventDefault()
 
-      verifyLetter(letter)
+    verifyLetter(letter)
 
-      setLetter("")
+    setLetter("")
 
-      letterInputRef.current.focus()
-    }
+    letterInputRef.current.focus()
+  }
 
   return (
     <div className='game'>
@@ -29,18 +29,24 @@ const Game = ({ verifyLetter, pickedWord, pickedCategory, letters, guessedLetter
       </h3>
       <p>Você ainda tem {guesses} tentativa(s) </p>
       <div className="wordContainer">
-       {letters.map((letter, i) => (
-        guessedLetters.includes(letter) ? (
-          <span className='letter' key={i}>{letter}</span>
-        ) : (
-          <span className="blankSquare" key={i}></span>
-        )
-       ))}
+        {letters.map((letter, i) => (
+          guessedLetters.includes(letter) ? (
+            <span className='letter' key={i}>{letter}</span>
+          ) : (
+            <span className="blankSquare" key={i}></span>
+          )
+        ))}
       </div>
       <div className="letterContainer">
         <p>Tente adivinhar im aletra da palavra:</p>
         <form onSubmit={handleSubmit}>
-          <input type="text" name="letter" maxLength={1} required onChange={(e) => setLetter(e.target.value)} value={letter} ref={letterInputRef} />
+          <input type="text"
+            name="letter"
+            maxLength={1}
+            required
+            onChange={(e) => setLetter(e.target.value)} value={letter}
+            ref={letterInputRef}
+          />
           <button >Jogar!</button>
         </form>
       </div>
